@@ -1,6 +1,6 @@
 const User = require('./auth-model')
 
-const checkUsernameExists = async (req, res, next) => {
+const checkUsernameUnique = async (req, res, next) => {
     try {
         const [user] = await User.findBy({ username: req.body.username })
         if (!user) {
@@ -22,8 +22,23 @@ const validateUser = (req, res, next) => {
     next()
 }
 
+const checkUsernameExists = async (req, res, next) => {
+    try {
+      const [user] = await User.findBy({ username: req.body.username })
+      if (!user) {
+        next({ status: 401, message: 'invalid credentials' })
+      } else {
+        req.user = user
+        next()
+      }
+    } catch (err) {
+      next(err)
+    }
+  }
+
 
 module.exports = {
     validateUser,
-    checkUsernameExists,
+    checkUsernameUnique,
+    checkUsernameExists
 }
